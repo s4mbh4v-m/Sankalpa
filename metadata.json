@@ -1,0 +1,8 @@
+{
+  "name": "SANKALPA",
+  "description": "A personal operating system for self-mastery, intention, discipline, and temptation ledger with offline-first local storage and points engine.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

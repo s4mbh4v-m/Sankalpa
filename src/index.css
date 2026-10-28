@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Cinzel', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #110f13;
+    color: #e8e4df;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .brand-font {
+    font-family: var(--font-serif);
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ========================================================================= */
+/* TRANSLUCENT GLASSMORPHIC SURFACES (Allowing atmospheric depth to shine)   */
+/* ========================================================================= */
+
+/* Virtuous World Surfaces (Warm Charcoal, Deep Olive-Brown, Bronze, Gold) */
+.virtuous-gradient-card {
+  background: linear-gradient(145deg, rgba(35, 30, 22, 0.82) 0%, rgba(20, 17, 13, 0.88) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(198, 164, 92, 0.32);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(242, 235, 221, 0.12);
+}
+
+.virtuous-border {
+  border-color: rgba(198, 164, 92, 0.32);
+}
+
+.virtuous-border-glow {
+  border-color: rgba(198, 164, 92, 0.5);
+  box-shadow: 0 0 25px -4px rgba(198, 164, 92, 0.22);
+}
+
+.virtuous-gold-text {
+  color: #C6A45C;
+}
+
+.virtuous-parchment-text {
+  color: #F2EBDD;
+}
+
+/* Shadow World Surfaces (Obsidian, Charcoal, Deep Burgundy, Crimson) */
+.shadow-gradient-card {
+  background: linear-gradient(145deg, rgba(38, 20, 28, 0.82) 0%, rgba(18, 13, 17, 0.88) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 71, 80, 0.32);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(231, 122, 86, 0.12);
+}
+
+.shadow-border {
+  border-color: rgba(201, 71, 80, 0.32);
+}
+
+.shadow-border-glow {
+  border-color: rgba(201, 71, 80, 0.5);
+  box-shadow: 0 0 25px -4px rgba(201, 71, 80, 0.24);
+}
+
+.shadow-crimson-text {
+  color: #C94750;
+}
+
+.shadow-ember-text {
+  color: #E77A56;
+}
+
+/* Central Equilibrium Balance Card (Unified Obsidian Core with Radiant Aura) */
+.equilibrium-card {
+  background: radial-gradient(circle at 50% 0%, rgba(48, 38, 44, 0.85) 0%, rgba(18, 15, 20, 0.9) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(198, 164, 92, 0.38);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75), 0 0 30px -5px rgba(198, 164, 92, 0.18), inset 0 1px 1px rgba(242, 235, 221, 0.15);
+}
+
+/* Dark Fantasy Atmospheric Card for Ledger & Lists */
+.fantasy-card {
+  background: linear-gradient(145deg, rgba(24, 21, 28, 0.8) 0%, rgba(16, 14, 18, 0.86) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(44, 38, 50, 0.7);
+  box-shadow: 0 8px 25px -6px rgba(0, 0, 0, 0.5);
+}
+
+/* Subtle sacred geometric background motif */
+.yantra-pattern {
+  background-image: radial-gradient(rgba(198, 164, 92, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}

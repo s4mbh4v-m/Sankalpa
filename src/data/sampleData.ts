@@ -1,0 +1,245 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import {
+  ActivityRecord,
+  ConsumptionRecord,
+  LedgerTransaction,
+} from '../types';
+
+export function generateSampleData() {
+  const now = new Date();
+
+  const getDateStr = (daysAgo: number, hour: number, minute: number = 0) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - daysAgo);
+    d.setHours(hour, minute, 0, 0);
+    return d.toISOString();
+  };
+
+  const sampleActivities: ActivityRecord[] = [
+    {
+      id: 'act_sample_1',
+      typeId: 'running',
+      typeName: 'Running',
+      calculationMethod: 'duration',
+      durationMinutes: 35,
+      intensity: 'high',
+      timestamp: getDateStr(3, 7, 30),
+      pointsEarned: 91,
+      notes: 'Morning run in the park',
+      transactionId: 'tx_act_1',
+      createdAt: getDateStr(3, 8, 10),
+      updatedAt: getDateStr(3, 8, 10),
+    },
+    {
+      id: 'act_sample_2',
+      typeId: 'pushups',
+      typeName: 'Push-ups',
+      calculationMethod: 'repetition',
+      repetitions: 40,
+      timestamp: getDateStr(2, 17, 45),
+      pointsEarned: 20, // 40 reps / 20 * 10 = 20 pts
+      notes: '2 sets of 20 pushups',
+      transactionId: 'tx_act_2',
+      createdAt: getDateStr(2, 18, 50),
+      updatedAt: getDateStr(2, 18, 50),
+    },
+    {
+      id: 'act_sample_3',
+      typeId: 'meditation',
+      typeName: 'Daily Meditation',
+      calculationMethod: 'fixed',
+      timestamp: getDateStr(1, 8, 0),
+      pointsEarned: 15,
+      notes: 'Morning breathwork',
+      transactionId: 'tx_act_3',
+      createdAt: getDateStr(1, 8, 20),
+      updatedAt: getDateStr(1, 8, 20),
+    },
+    {
+      id: 'act_sample_4',
+      typeId: 'cycling',
+      typeName: 'Cycling',
+      calculationMethod: 'duration',
+      durationMinutes: 45,
+      intensity: 'vigorous',
+      timestamp: getDateStr(0, 9, 0),
+      pointsEarned: 118,
+      notes: 'Interval loops',
+      transactionId: 'tx_act_4',
+      createdAt: getDateStr(0, 10, 0),
+      updatedAt: getDateStr(0, 10, 0),
+    },
+  ];
+
+  const sampleConsumptions: ConsumptionRecord[] = [
+    {
+      id: 'cns_sample_1',
+      typeId: 'cigarette',
+      typeName: 'Cigarettes',
+      category: 'smoking',
+      quantity: 2,
+      unitName: 'cigarette',
+      timestamp: getDateStr(3, 14, 20),
+      pointsCharged: 20,
+      transactionId: 'tx_cns_1',
+      brandOrType: 'Regular',
+      notes: 'Afternoon break',
+      createdAt: getDateStr(3, 14, 20),
+    },
+    {
+      id: 'cns_sample_2',
+      typeId: 'alcohol',
+      typeName: 'Alcoholic Drink',
+      category: 'alcohol',
+      drinkType: 'beer',
+      quantity: 1,
+      unitName: 'drink',
+      volumeMl: 330,
+      abv: 5.0,
+      pureAlcoholGrams: 13.0,
+      standardUnits: 1.65,
+      pointsCharged: 15,
+      transactionId: 'tx_cns_2',
+      notes: 'Craft pale ale with dinner',
+      timestamp: getDateStr(2, 20, 15),
+      createdAt: getDateStr(2, 20, 15),
+    },
+    {
+      id: 'cns_sample_3',
+      typeId: 'gaming',
+      typeName: 'Video Gaming',
+      category: 'digital',
+      quantity: 60,
+      unitName: 'minute',
+      pointsCharged: 10,
+      transactionId: 'tx_cns_3',
+      notes: 'Weekend co-op session',
+      timestamp: getDateStr(1, 21, 30),
+      createdAt: getDateStr(1, 21, 30),
+    },
+    {
+      id: 'cns_sample_4',
+      typeId: 'cigarette',
+      typeName: 'Cigarettes',
+      category: 'smoking',
+      quantity: 1,
+      unitName: 'cigarette',
+      pointsCharged: 10,
+      transactionId: 'tx_cns_4',
+      brandOrType: 'Regular',
+      notes: 'Quick coffee break',
+      timestamp: getDateStr(0, 14, 0),
+      createdAt: getDateStr(0, 14, 0),
+    },
+  ];
+
+  const sampleTransactions: LedgerTransaction[] = [
+    // Earned Rewards (Positive)
+    {
+      id: 'tx_act_1',
+      timestamp: getDateStr(3, 7, 30),
+      type: 'reward',
+      points: 91,
+      description: 'Running (35m, high)',
+      activityId: 'act_sample_1',
+      status: 'active',
+      notes: '35m (30 pts / 15m, proportional) × 1.3x',
+      createdAt: getDateStr(3, 8, 10),
+      updatedAt: getDateStr(3, 8, 10),
+    },
+    {
+      id: 'tx_cns_1',
+      timestamp: getDateStr(3, 14, 20),
+      type: 'consumption',
+      points: -20,
+      description: 'Cigarettes (2 cigarettes)',
+      consumptionId: 'cns_sample_1',
+      status: 'active',
+      notes: '2 cigarettes × 10 pts',
+      createdAt: getDateStr(3, 14, 20),
+      updatedAt: getDateStr(3, 14, 20),
+    },
+    {
+      id: 'tx_act_2',
+      timestamp: getDateStr(2, 17, 45),
+      type: 'reward',
+      points: 20,
+      description: 'Push-ups (40 reps)',
+      activityId: 'act_sample_2',
+      status: 'active',
+      notes: '40 reps (10 pts per 20 reps, proportional)',
+      createdAt: getDateStr(2, 18, 50),
+      updatedAt: getDateStr(2, 18, 50),
+    },
+    {
+      id: 'tx_cns_2',
+      timestamp: getDateStr(2, 20, 15),
+      type: 'consumption',
+      points: -15,
+      description: 'Alcoholic Drink (1 drink)',
+      consumptionId: 'cns_sample_2',
+      status: 'active',
+      notes: '1 drink × 15 pts',
+      createdAt: getDateStr(2, 20, 15),
+      updatedAt: getDateStr(2, 20, 15),
+    },
+    {
+      id: 'tx_act_3',
+      timestamp: getDateStr(1, 8, 0),
+      type: 'reward',
+      points: 15,
+      description: 'Daily Meditation (Fixed reward)',
+      activityId: 'act_sample_3',
+      status: 'active',
+      notes: 'Fixed reward: 15 pts',
+      createdAt: getDateStr(1, 8, 20),
+      updatedAt: getDateStr(1, 8, 20),
+    },
+    {
+      id: 'tx_cns_3',
+      timestamp: getDateStr(1, 21, 30),
+      type: 'consumption',
+      points: -10,
+      description: 'Video Gaming (60 minutes)',
+      consumptionId: 'cns_sample_3',
+      status: 'active',
+      notes: '60 min (5 pts per 30 min)',
+      createdAt: getDateStr(1, 21, 30),
+      updatedAt: getDateStr(1, 21, 30),
+    },
+    {
+      id: 'tx_act_4',
+      timestamp: getDateStr(0, 9, 0),
+      type: 'reward',
+      points: 118,
+      description: 'Cycling (45m, vigorous)',
+      activityId: 'act_sample_4',
+      status: 'active',
+      notes: '45m (45 pts / 30m) × 1.6x + 10pt milestone',
+      createdAt: getDateStr(0, 10, 0),
+      updatedAt: getDateStr(0, 10, 0),
+    },
+    {
+      id: 'tx_cns_4',
+      timestamp: getDateStr(0, 14, 0),
+      type: 'consumption',
+      points: -10,
+      description: 'Cigarettes (1 cigarette)',
+      consumptionId: 'cns_sample_4',
+      status: 'active',
+      notes: '1 cigarette × 10 pts',
+      createdAt: getDateStr(0, 14, 0),
+      updatedAt: getDateStr(0, 14, 0),
+    },
+  ];
+
+  return {
+    activities: sampleActivities,
+    transactions: sampleTransactions,
+    consumptions: sampleConsumptions,
+  };
+}

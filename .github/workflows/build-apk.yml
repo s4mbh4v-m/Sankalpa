@@ -20,7 +20,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Set up Java JDK
         uses: actions/setup-java@v4
@@ -32,13 +36,22 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build web application
-        run: npm run build
+        run: bun run build
+
+      - name: Ensure Android platform exists
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Android directory not found. Adding Android platform via Capacitor..."
+            bunx cap add android
+          else
+            echo "Android platform already present."
+          fi
 
       - name: Sync web assets with Capacitor Android
-        run: npx cap sync android
+        run: bunx cap sync android
 
       - name: Make Gradlew executable
         run: chmod +x android/gradlew

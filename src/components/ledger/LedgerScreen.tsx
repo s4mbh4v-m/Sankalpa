@@ -272,7 +272,7 @@ export const LedgerScreen: React.FC = () => {
                 : 'bg-[#151419] border-[#26222c] text-[#8e8578]'
             }`}
           >
-            Virtues (+)
+            Punya (+)
           </button>
 
           <button
@@ -283,7 +283,7 @@ export const LedgerScreen: React.FC = () => {
                 : 'bg-[#151419] border-[#26222c] text-[#8e8578]'
             }`}
           >
-            Temptations (-)
+            Papa (-)
           </button>
 
           <button

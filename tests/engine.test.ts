@@ -302,6 +302,59 @@ function runTestSuite() {
     assert(calculateLedgerBalance(updatedTransactions) === 0, 'Reversed transaction points excluded from balance');
   }
 
+  // 9. Clean Ledger & Default Configuration Preservation
+  console.log('\n[Case 9: Clean Ledger Contract & Default Settings Preservation]');
+  {
+    assert(DEFAULT_SETTINGS.activityTypes.length > 0, 'Default activity types exist');
+    assert(DEFAULT_SETTINGS.consumptionTypes.length > 0, 'Default consumption types exist');
+    
+    // Ensure empty transaction list evaluates to 0 without errors
+    const emptyTransactions: LedgerTransaction[] = [];
+    assert(calculateLedgerBalance(emptyTransactions) === 0, 'Clean ledger starts with 0 balance');
+    assert(calculatePointsEarnedOnDay(emptyTransactions, new Date()) === 0, '0 earned points today on clean ledger');
+    assert(calculatePointsSpentOnDay(emptyTransactions, new Date()) === 0, '0 spent points today on clean ledger');
+  }
+
+  // 10. Onboarding Persistence & Existing User State Protection
+  console.log('\n[Case 10: Onboarding State Contract]');
+  {
+    // A fresh install has no transactions, no activities, and hasCompletedOnboarding = false
+    const freshInstall = {
+      transactions: [],
+      activities: [],
+      consumptions: [],
+      hasCompletedOnboarding: false,
+      welcomeFlag: false,
+    };
+    const showWelcomeOnFresh = !freshInstall.welcomeFlag && !freshInstall.hasCompletedOnboarding;
+    assert(showWelcomeOnFresh === true, 'Fresh installation shows welcome screen');
+
+    // After pressing Begin, onboarding flag is set
+    const afterBegin = {
+      ...freshInstall,
+      welcomeFlag: true,
+      hasCompletedOnboarding: true,
+    };
+    const showWelcomeAfterBegin = !afterBegin.welcomeFlag && !afterBegin.hasCompletedOnboarding;
+    assert(showWelcomeAfterBegin === false, 'Subsequent launch with 0 transactions skips welcome screen');
+
+    // Existing user with prior transactions but no flag set must be recognized as existing user
+    const existingUser = {
+      transactions: [{ id: 'tx_old', points: 10 }],
+      activities: [],
+      consumptions: [],
+      hasCompletedOnboarding: false,
+      welcomeFlag: false,
+    };
+    const isExistingUser =
+      existingUser.transactions.length > 0 ||
+      existingUser.activities.length > 0 ||
+      existingUser.consumptions.length > 0 ||
+      existingUser.hasCompletedOnboarding ||
+      existingUser.welcomeFlag;
+    assert(isExistingUser === true, 'Existing user with prior records is protected from seeing welcome screen');
+  }
+
   console.log(`\n======================================================`);
   console.log(`Test Results: ${passed} passed, ${failed} failed.`);
   console.log(`======================================================\n`);

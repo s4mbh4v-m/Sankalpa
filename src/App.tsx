@@ -9,21 +9,36 @@ import { Header } from './components/common/Header';
 import { BottomNav, NavTab } from './components/common/BottomNav';
 import { Toast } from './components/common/Toast';
 import { PWAInstallModal } from './components/common/PWAInstallBanner';
-import { OnboardingModal } from './components/onboarding/OnboardingModal';
+import { WelcomeScreen } from './components/welcome/WelcomeScreen';
 import { DashboardScreen } from './components/dashboard/DashboardScreen';
 import { LogScreen } from './components/logger/LogScreen';
 import { LedgerScreen } from './components/ledger/LedgerScreen';
 import { AnalyticsScreen } from './components/analytics/AnalyticsScreen';
-import { SettingsScreen } from './components/settings/SettingsScreen';
+import { SettingsScreen, SettingsSection } from './components/settings/SettingsScreen';
 import { SankalpaEmblem } from './components/common/SankalpaEmblem';
 import { AtmosphericBackground, BackgroundTheme } from './components/common/AtmosphericBackground';
 
 function MainApp() {
-  const { isLoading, preferences, addConsumption } = useLedger();
+  const { isLoading, preferences, updatePreferences, addConsumption } = useLedger();
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
   const [logSubMode, setLogSubMode] = useState<'activity' | 'consumption'>('activity');
+  const [altarSection, setAltarSection] = useState<SettingsSection>(() => {
+    try {
+      return (localStorage.getItem('sankalpa_altar_section') as SettingsSection) || 'activities';
+    } catch {
+      return 'activities';
+    }
+  });
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  // Synchronously initialize welcome completion from local storage to avoid flash on startup
+  const [hasCompletedWelcome, setHasCompletedWelcome] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('sankalpa_welcome_completed') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   // Quick 1-tap cigarette logger from dashboard
   const handleQuickLogCigarette = async () => {
@@ -41,6 +56,18 @@ function MainApp() {
     if (mode) {
       setLogSubMode(mode);
     }
+  };
+
+  // Handler when user taps "Begin" on first-launch WelcomeScreen
+  const handleBegin = async () => {
+    try {
+      localStorage.setItem('sankalpa_welcome_completed', 'true');
+    } catch {
+      // ignore
+    }
+    setHasCompletedWelcome(true);
+    await updatePreferences({ hasCompletedOnboarding: true });
+    setCurrentTab('dashboard');
   };
 
   if (isLoading) {
@@ -61,7 +88,14 @@ function MainApp() {
     );
   }
 
-  // Determine active background theme
+  // First-launch Welcome Screen check:
+  // Dedicated onboarding flag separate from transactions. Shown only once on fresh install.
+  const isWelcomeCompleted = hasCompletedWelcome || preferences.hasCompletedOnboarding;
+  if (!isWelcomeCompleted) {
+    return <WelcomeScreen onBegin={handleBegin} />;
+  }
+
+  // Determine active background theme for main application
   let backgroundTheme: BackgroundTheme = 'dashboard';
   if (currentTab === 'dashboard') {
     backgroundTheme = 'dashboard';
@@ -72,10 +106,8 @@ function MainApp() {
   } else if (currentTab === 'analytics') {
     backgroundTheme = 'analytics';
   } else if (currentTab === 'settings') {
-    backgroundTheme = 'settings';
+    backgroundTheme = `settings-${altarSection}` as BackgroundTheme;
   }
-
-  const shouldShowFirstRunOnboarding = !preferences.hasCompletedOnboarding;
 
   return (
     <div className="min-h-screen text-[#e8e4df] flex flex-col selection:bg-[#82683a] selection:text-[#fff8ee] relative">
@@ -107,7 +139,15 @@ function MainApp() {
 
         {currentTab === 'settings' && (
           <SettingsScreen
-            onOpenOnboarding={() => setIsOnboardingOpen(true)}
+            activeSection={altarSection}
+            onSectionChange={(sec) => {
+              setAltarSection(sec);
+              try {
+                localStorage.setItem('sankalpa_altar_section', sec);
+              } catch {
+                // ignore
+              }
+            }}
             onOpenInstallModal={() => setIsInstallModalOpen(true)}
           />
         )}
@@ -123,12 +163,6 @@ function MainApp() {
       <PWAInstallModal
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
-      />
-
-      {/* Onboarding Guide (First run or manually triggered) */}
-      <OnboardingModal
-        isOpen={shouldShowFirstRunOnboarding || isOnboardingOpen}
-        onClose={() => setIsOnboardingOpen(false)}
       />
     </div>
   );

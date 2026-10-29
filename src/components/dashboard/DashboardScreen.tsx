@@ -7,19 +7,18 @@ import React from 'react';
 import { useLedger } from '../../context/LedgerContext';
 import {
   Sparkles,
-  Dumbbell,
   Cigarette,
   Wine,
   ArrowUpRight,
   TrendingUp,
   TrendingDown,
-  Flame,
   Shield,
   Layers,
   ChevronRight,
 } from 'lucide-react';
 import { NavTab } from '../common/BottomNav';
 import { SankalpaEmblem } from '../common/SankalpaEmblem';
+import { PunyaSymbol, PapaSymbol } from '../common/SacredSymbols';
 
 interface DashboardScreenProps {
   onNavigate: (tab: NavTab, mode?: 'activity' | 'consumption') => void;
@@ -157,21 +156,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       {/* QUICK LOG BUTTONS (Thumb Reach)                         */}
       {/* ======================================================== */}
       <div className="grid grid-cols-3 gap-2.5">
-        {/* Virtuous Action: Record Discipline */}
+        {/* Punya Action: Record Discipline */}
         <button
           onClick={() => onNavigate('log', 'activity')}
           className="min-h-[56px] p-2.5 bg-gradient-to-b from-[#282119]/80 to-[#191512]/85 hover:from-[#31271d] hover:to-[#221c17] border border-[#C6A45C]/40 rounded-2xl flex flex-col items-center justify-center text-center transition-all active:scale-[0.97] shadow-md group backdrop-blur-sm"
         >
           <div className="flex items-center gap-1.5 text-[#C6A45C] text-xs font-bold group-hover:text-[#F2EBDD] transition-colors">
-            <Dumbbell className="w-3.5 h-3.5" />
-            <span className="font-serif tracking-wide">Virtue</span>
+            <PunyaSymbol size={15} color="#C6A45C" />
+            <span className="font-serif tracking-wide">Punya</span>
           </div>
           <span className="text-[10px] text-[#A69B89] mt-0.5 tracking-tight font-medium">
             Earn Points
           </span>
         </button>
 
-        {/* Shadow Action 1: Quick Temptation (Cigarette or first configured) */}
+        {/* Papa Action 1: Quick Temptation (First configured or smoke) */}
         {firstConsumption ? (
           <button
             onClick={() => {
@@ -184,7 +183,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             className="min-h-[56px] p-2.5 bg-gradient-to-b from-[#2d1620]/80 to-[#1b0d13]/85 hover:from-[#3a1d29] hover:to-[#26121b] border border-[#C94750]/40 rounded-2xl flex flex-col items-center justify-center text-center transition-all active:scale-[0.97] shadow-md group backdrop-blur-sm"
           >
             <div className="flex items-center gap-1.5 text-[#E77A56] text-xs font-bold truncate max-w-full group-hover:text-[#F2EBDD] transition-colors">
-              <Flame className="w-3.5 h-3.5 shrink-0 text-[#C94750]" />
+              <PapaSymbol size={15} color="#C94750" />
               <span className="truncate font-serif">{firstConsumption.name}</span>
             </div>
             <span className="text-[10px] text-[#b8959c] mt-0.5 tracking-tight font-medium">
@@ -197,14 +196,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             className="min-h-[56px] p-2.5 bg-gradient-to-b from-[#2d1620]/80 to-[#1b0d13]/85 hover:from-[#3a1d29] hover:to-[#26121b] border border-[#C94750]/40 rounded-2xl flex flex-col items-center justify-center text-center transition-all active:scale-[0.97] shadow-md group backdrop-blur-sm"
           >
             <div className="flex items-center gap-1.5 text-[#E77A56] text-xs font-bold group-hover:text-[#F2EBDD]">
-              <Cigarette className="w-3.5 h-3.5 text-[#C94750]" />
+              <PapaSymbol size={15} color="#C94750" />
               <span className="font-serif">+1 Smoke</span>
             </div>
             <span className="text-[10px] text-[#b8959c] mt-0.5 font-medium">1-Tap Log</span>
           </button>
         )}
 
-        {/* Shadow Action 2: Libation / Custom Cost */}
+        {/* Papa Action 2: Libation / Custom Cost */}
         <button
           onClick={() => onNavigate('log', 'consumption')}
           className="min-h-[56px] p-2.5 bg-gradient-to-b from-[#281521]/80 to-[#190d15]/85 hover:from-[#341b2b] hover:to-[#22121d] border border-[#C94750]/35 rounded-2xl flex flex-col items-center justify-center text-center transition-all active:scale-[0.97] shadow-md group backdrop-blur-sm"
@@ -220,17 +219,17 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       </div>
 
       {/* ======================================================== */}
-      {/* THE TWO WORLDS: VIRTUOUS VS SHADOW DUAL PANELS           */}
+      {/* THE TWO WORLDS: PUNYA VS PAPA DUAL PANELS                */}
       {/* ======================================================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        {/* WORLD 1: VIRTUOUS WORLD (Ascension & Discipline) */}
+        {/* WORLD 1: PUNYA (Ascension & Discipline) */}
         <div className="virtuous-gradient-card rounded-2xl p-4.5 shadow-md relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#C6A45C]/5 rounded-bl-full pointer-events-none" />
 
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 text-[#C6A45C] text-xs font-bold uppercase tracking-wider font-serif">
-              <Dumbbell className="w-4 h-4 text-[#C6A45C]" />
-              <span>Virtuous Path</span>
+              <PunyaSymbol size={18} color="#C6A45C" />
+              <span>Punya</span>
             </div>
             <button
               onClick={() => onNavigate('log', 'activity')}
@@ -254,19 +253,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 +{pointsEarnedToday}
                 <span className="text-xs text-[#82683A] font-serif ml-1">pts</span>
               </p>
-              <p className="text-[11px] text-[#A69B89] mt-0.5 font-medium">Virtue Earned</p>
+              <p className="text-[11px] text-[#A69B89] mt-0.5 font-medium">Punya Earned</p>
             </div>
           </div>
         </div>
 
-        {/* WORLD 2: SHADOW WORLD (Gravity & Temptation) */}
+        {/* WORLD 2: PAPA (Gravity & Temptation) */}
         <div className="shadow-gradient-card rounded-2xl p-4.5 shadow-md relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#C94750]/5 rounded-bl-full pointer-events-none" />
 
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2 text-[#E77A56] text-xs font-bold uppercase tracking-wider font-serif">
-              <Flame className="w-4 h-4 text-[#C94750]" />
-              <span>Shadow Ledger</span>
+              <PapaSymbol size={18} color="#C94750" />
+              <span>Papa</span>
             </div>
             <button
               onClick={() => onNavigate('log', 'consumption')}
@@ -294,7 +293,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 -{pointsSpentToday}
                 <span className="text-xs text-[#E77A56] font-serif ml-1">pts</span>
               </p>
-              <p className="text-[11px] text-[#a48e94] mt-0.5 font-medium">Temptation Cost</p>
+              <p className="text-[11px] text-[#a48e94] mt-0.5 font-medium">Papa Incurred</p>
             </div>
           </div>
         </div>
@@ -354,13 +353,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       </div>
 
       {/* ======================================================== */}
-      {/* RECENT TEMPTATIONS / CONSUMPTION RECORDS                 */}
+      {/* RECENT TEMPTATIONS / PAPA RECORDS                        */}
       {/* ======================================================== */}
       <div className="shadow-gradient-card rounded-2xl p-4 shadow-md">
         <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#C94750]/20">
           <h2 className="text-xs font-bold text-[#E9E0DB] font-serif uppercase tracking-wider flex items-center gap-2">
-            <Flame className="w-3.5 h-3.5 text-[#C94750]" />
-            <span>Recent Shadow Records</span>
+            <PapaSymbol size={15} color="#C94750" />
+            <span>Recent Papa Records</span>
           </h2>
           <button
             onClick={() => onNavigate('analytics')}
@@ -383,7 +382,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 className="flex items-center justify-between py-2 px-2.5 rounded-xl bg-[#1b151d]/60 hover:bg-[#201924] transition-colors border border-transparent hover:border-[#332230]"
               >
                 <div className="flex items-center gap-2.5">
-                  <Flame className="w-3.5 h-3.5 text-[#C94750] shrink-0" />
+                  <PapaSymbol size={15} color="#C94750" />
                   <div className="flex flex-col">
                     <span className="font-medium text-xs text-[#E9E0DB]">
                       {c.typeName} ({c.quantity} {c.unitName}{c.quantity > 1 ? 's' : ''})

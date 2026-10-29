@@ -278,31 +278,43 @@ export const LedgerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           };
         });
 
-        // If completely empty database and user hasn't completed onboarding, load sample data
-        if (
-          migratedActs.length === 0 &&
-          migratedCons.length === 0 &&
-          loadedTxs.length === 0 &&
-          !loadedPrefs.hasCompletedOnboarding
-        ) {
-          const sample = generateSampleData();
-          await Promise.all([
-            bulkPutIntoStore(STORES.ACTIVITIES, sample.activities),
-            bulkPutIntoStore(STORES.CONSUMPTIONS, sample.consumptions),
-            bulkPutIntoStore(STORES.TRANSACTIONS, sample.transactions),
-            saveSetting('engine_settings', migratedSettings),
-          ]);
-          setActivities(sample.activities);
-          setConsumptions(sample.consumptions);
-          setTransactions(sample.transactions);
-        } else {
-          setActivities(migratedActs);
-          setConsumptions(migratedCons);
-          setTransactions(loadedTxs);
+        // Ensure default settings are persisted if empty
+        if (!loadedSettings || !loadedSettings.activityTypes || loadedSettings.activityTypes.length === 0) {
+          await saveSetting('engine_settings', migratedSettings);
         }
 
+        // An existing user is someone who already has transactions, activity logs, consumption logs,
+        // or has previously saved preferences/sections.
+        const isExistingUser =
+          loadedTxs.length > 0 ||
+          migratedActs.length > 0 ||
+          migratedCons.length > 0 ||
+          loadedPrefs.hasCompletedOnboarding ||
+          Boolean(localStorage.getItem('sankalpa_altar_section')) ||
+          Boolean(localStorage.getItem('sankalpa_welcome_completed'));
+
+        let finalPrefs = { ...loadedPrefs };
+
+        // If existing user has not yet flagged onboarding in preferences or localStorage, preserve their existing state
+        if (isExistingUser) {
+          try {
+            localStorage.setItem('sankalpa_welcome_completed', 'true');
+          } catch {
+            // ignore
+          }
+          if (!finalPrefs.hasCompletedOnboarding) {
+            finalPrefs = { ...finalPrefs, hasCompletedOnboarding: true };
+            await saveSetting('user_preferences', finalPrefs);
+          }
+        }
+
+        // A fresh installation starts with an empty personal ledger (zero activities, consumptions, or transactions).
+        // No sample data is ever automatically inserted into user records.
+        setActivities(migratedActs);
+        setConsumptions(migratedCons);
+        setTransactions(loadedTxs);
         setSettings(migratedSettings);
-        setPreferences(loadedPrefs);
+        setPreferences(finalPrefs);
       } catch (err) {
         console.error('Failed to initialize local data', err);
       } finally {

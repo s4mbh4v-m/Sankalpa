@@ -98,3 +98,68 @@
   background-image: radial-gradient(rgba(198, 164, 92, 0.08) 1px, transparent 1px);
   background-size: 20px 20px;
 }
+
+/* Custom utility to completely hide scrollbar while preserving smooth scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom slim themed scrollbar for Altar horizontal ribbon */
+.altar-ribbon-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(198, 164, 92, 0.55) #121015;
+}
+
+.altar-ribbon-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+
+.altar-ribbon-scroll::-webkit-scrollbar-track {
+  background: #121015;
+  border-radius: 9999px;
+  margin: 0 4px;
+}
+
+.altar-ribbon-scroll::-webkit-scrollbar-thumb {
+  background: #82683A;
+  border-radius: 9999px;
+  border: 1px solid rgba(198, 164, 92, 0.3);
+}
+
+.altar-ribbon-scroll::-webkit-scrollbar-thumb:hover {
+  background: #C6A45C;
+}
+
+.altar-ribbon-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Crimson scrollbar accent for Papa / Consumption Types */
+.altar-ribbon-scroll.theme-papa {
+  scrollbar-color: rgba(201, 71, 80, 0.65) #150f14;
+}
+
+.altar-ribbon-scroll.theme-papa::-webkit-scrollbar-track {
+  background: #150f14;
+}
+
+.altar-ribbon-scroll.theme-papa::-webkit-scrollbar-thumb {
+  background: #C94750;
+  border: 1px solid rgba(231, 122, 86, 0.35);
+}
+
+.altar-ribbon-scroll.theme-papa::-webkit-scrollbar-thumb:hover {
+  background: #E77A56;
+}
+
+

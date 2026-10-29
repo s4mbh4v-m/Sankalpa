@@ -15,18 +15,17 @@ import {
   calculateAlcoholMetrics,
 } from '../../engine/pointsEngine';
 import {
-  Dumbbell,
   Sparkles,
   Check,
   Plus,
   Minus,
   AlertTriangle,
-  Flame,
   Activity,
   Layers,
   Wine,
 } from 'lucide-react';
 import { SankalpaEmblem } from '../common/SankalpaEmblem';
+import { PunyaSymbol, PapaSymbol } from '../common/SacredSymbols';
 
 interface LogScreenProps {
   mode?: 'activity' | 'consumption';
@@ -199,8 +198,8 @@ export const LogScreen: React.FC<LogScreenProps> = ({ mode = 'activity', onModeC
               : 'text-[#827d75] hover:text-[#c4baa9]'
           }`}
         >
-          <SankalpaEmblem size={16} variant="virtuous" />
-          <span>Virtuous Path (Earn)</span>
+          <PunyaSymbol size={16} color={mainMode === 'activity' ? '#C6A45C' : '#827d75'} />
+          <span>Punya (Earn)</span>
         </button>
 
         <button
@@ -211,13 +210,13 @@ export const LogScreen: React.FC<LogScreenProps> = ({ mode = 'activity', onModeC
               : 'text-[#827d75] hover:text-[#c4baa9]'
           }`}
         >
-          <Flame className="w-4 h-4 text-[#C94750]" />
-          <span>Shadow Ledger (Spend)</span>
+          <PapaSymbol size={16} color={mainMode === 'consumption' ? '#C94750' : '#827d75'} />
+          <span>Papa (Spend)</span>
         </button>
       </div>
 
       {/* ========================================================================= */}
-      {/* MODE 1: VIRTUOUS ACTIVITY LOGGER (IVORY, GOLD, PARCHMENT, BRONZE)       */}
+      {/* MODE 1: PUNYA ACTIVITY LOGGER (IVORY, GOLD, PARCHMENT, BRONZE)          */}
       {/* ========================================================================= */}
       {mainMode === 'activity' && (
         <form onSubmit={handleLogActivity} className="space-y-4">
@@ -227,7 +226,7 @@ export const LogScreen: React.FC<LogScreenProps> = ({ mode = 'activity', onModeC
             <div>
               <span className="text-[11px] font-bold text-[#C6A45C] uppercase tracking-widest flex items-center gap-1.5 font-serif">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Virtue Inscribed</span>
+                <span>Punya Inscribed</span>
               </span>
               <p className="text-xs text-[#E6DAC3] mt-0.5">
                 {liveActivityPoints.breakdown}
@@ -494,13 +493,13 @@ export const LogScreen: React.FC<LogScreenProps> = ({ mode = 'activity', onModeC
             className="w-full min-h-[52px] bg-gradient-to-r from-[#C6A45C] via-[#b5924b] to-[#82683A] hover:brightness-110 active:scale-[0.98] text-[#14120f] font-serif font-bold tracking-wider text-sm rounded-2xl shadow-lg shadow-[#C6A45C]/20 flex items-center justify-center gap-2 transition-all uppercase"
           >
             <Check className="w-4 h-4 stroke-[2.5]" />
-            <span>Inscribe Virtuous Act (+{liveActivityPoints.totalPoints} pts)</span>
+            <span>Inscribe Punya Act (+{liveActivityPoints.totalPoints} pts)</span>
           </button>
         </form>
       )}
 
       {/* ========================================================================= */}
-      {/* MODE 2: SHADOW CONSUMPTION LOGGER (OBSIDIAN, BURGUNDY, CRIMSON, EMBER)  */}
+      {/* MODE 2: PAPA CONSUMPTION LOGGER (OBSIDIAN, BURGUNDY, CRIMSON, EMBER)     */}
       {/* ========================================================================= */}
       {mainMode === 'consumption' && (
         <form onSubmit={handleLogConsumption} className="space-y-4">
@@ -509,8 +508,8 @@ export const LogScreen: React.FC<LogScreenProps> = ({ mode = 'activity', onModeC
             <div className="absolute right-0 top-0 w-32 h-32 bg-[#C94750]/10 rounded-bl-full pointer-events-none" />
             <div>
               <span className="text-[11px] font-bold text-[#E77A56] uppercase tracking-widest flex items-center gap-1.5 font-serif">
-                <Flame className="w-3.5 h-3.5 text-[#C94750]" />
-                <span>Temptation Cost</span>
+                <PapaSymbol size={15} color="#C94750" />
+                <span>Papa Cost</span>
               </span>
               <p className="text-xs text-[#E9E0DB] mt-0.5">
                 {liveConsumptionCost.breakdown}
@@ -808,7 +807,7 @@ export const LogScreen: React.FC<LogScreenProps> = ({ mode = 'activity', onModeC
             type="submit"
             className="w-full min-h-[52px] bg-gradient-to-r from-[#C94750] via-[#a8343c] to-[#6d1b22] hover:brightness-110 active:scale-[0.98] text-[#fff8ee] font-serif font-bold tracking-wider text-sm rounded-2xl shadow-lg shadow-[#C94750]/25 flex items-center justify-center gap-2 transition-all uppercase"
           >
-            <Flame className="w-4 h-4" />
+            <PapaSymbol size={16} color="#FFF8EE" />
             <span>
               Inscribe {consumptionQuantity} {selectedConsumptionConfig?.unitName}
               {consumptionQuantity > 1 ? 's' : ''} (-{liveConsumptionCost.totalCost} pts)

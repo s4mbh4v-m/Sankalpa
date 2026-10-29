@@ -43,17 +43,20 @@ import {
   reverseTransaction,
   DEFAULT_SETTINGS,
 } from '../../engine/pointsEngine';
+import { PunyaSymbol, PapaSymbol } from '../common/SacredSymbols';
+
+export type SettingsSection = 'activities' | 'consumptions' | 'rules' | 'limits' | 'data';
 
 interface SettingsScreenProps {
-  onOpenOnboarding: () => void;
   onOpenInstallModal: () => void;
+  activeSection?: SettingsSection;
+  onSectionChange?: (section: SettingsSection) => void;
 }
 
-type SettingsSection = 'activities' | 'consumptions' | 'rules' | 'limits' | 'data';
-
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
-  onOpenOnboarding,
   onOpenInstallModal,
+  activeSection: propActiveSection,
+  onSectionChange,
 }) => {
   const {
     settings,
@@ -73,8 +76,32 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     showToast,
   } = useLedger();
 
-  // Navigation tab within Settings
-  const [activeSection, setActiveSection] = useState<SettingsSection>('activities');
+  // Navigation tab within Settings (persisted across refreshes)
+  const [internalSection, setInternalSection] = useState<SettingsSection>(() => {
+    try {
+      return (localStorage.getItem('sankalpa_altar_section') as SettingsSection) || 'activities';
+    } catch {
+      return 'activities';
+    }
+  });
+
+  const activeSection = propActiveSection ?? internalSection;
+
+  const handleSelectSection = (sec: SettingsSection) => {
+    setInternalSection(sec);
+    try {
+      localStorage.setItem('sankalpa_altar_section', sec);
+    } catch {
+      // ignore
+    }
+    onSectionChange?.(sec);
+  };
+
+  React.useEffect(() => {
+    if (propActiveSection && propActiveSection !== internalSection) {
+      setInternalSection(propActiveSection);
+    }
+  }, [propActiveSection]);
 
   // Activity Type Modal (Add / Edit)
   const [editingActivity, setEditingActivity] = useState<ActivityTypeConfig | null>(null);
@@ -412,62 +439,98 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </p>
       </div>
 
-      {/* Sub-navigation tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
-        <button
-          onClick={() => setActiveSection('activities')}
-          className={`px-3 py-1.5 rounded-xl border font-bold text-xs whitespace-nowrap transition-colors ${
-            activeSection === 'activities'
-              ? 'bg-[#292219] border-[#C6A45C]/65 text-[#F2EBDD] font-serif shadow-sm'
-              : 'bg-[#16141a]/70 border-[#2c2635] text-[#8e8578] hover:text-[#F2EBDD]'
+      {/* Horizontal configuration navigation ribbon with styled scrollbar */}
+      <div className="p-1 rounded-2xl bg-[#120f16]/90 border border-[#2b2433] backdrop-blur-md shadow-lg">
+        <div
+          role="tablist"
+          aria-label="Altar configuration sections"
+          tabIndex={0}
+          className={`flex items-center gap-1.5 overflow-x-auto pb-2 pt-1 px-1 text-xs altar-ribbon-scroll ${
+            activeSection === 'consumptions' ? 'theme-papa' : ''
           }`}
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x',
+          }}
         >
-          Activity Types ({settings.activityTypes.length})
-        </button>
+          {/* Section 1: Activity Types */}
+          <button
+            role="tab"
+            aria-selected={activeSection === 'activities'}
+            onClick={() => handleSelectSection('activities')}
+            className={`min-h-[42px] px-3.5 py-1.5 rounded-xl border text-xs whitespace-nowrap transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A45C] shrink-0 ${
+              activeSection === 'activities'
+                ? 'bg-gradient-to-r from-[#2a2218] to-[#1e1912] border-[#C6A45C]/80 text-[#F2EBDD] font-serif font-bold shadow-[0_0_12px_rgba(198,164,92,0.22)]'
+                : 'bg-[#15131a]/60 border-transparent text-[#9a9184] hover:text-[#F2EBDD] hover:bg-[#1c1922]'
+            }`}
+          >
+            <PunyaSymbol size={14} color={activeSection === 'activities' ? '#C6A45C' : '#8a8276'} />
+            <span>Activity Types ({settings.activityTypes.length})</span>
+          </button>
 
-        <button
-          onClick={() => setActiveSection('consumptions')}
-          className={`px-3 py-1.5 rounded-xl border font-bold text-xs whitespace-nowrap transition-colors ${
-            activeSection === 'consumptions'
-              ? 'bg-[#2b141d] border-[#C94750]/65 text-[#E9E0DB] font-serif shadow-sm'
-              : 'bg-[#16141a]/70 border-[#2c2635] text-[#8e8578] hover:text-[#E9E0DB]'
-          }`}
-        >
-          Consumption Types ({settings.consumptionTypes.length})
-        </button>
+          {/* Section 2: Consumption Types */}
+          <button
+            role="tab"
+            aria-selected={activeSection === 'consumptions'}
+            onClick={() => handleSelectSection('consumptions')}
+            className={`min-h-[42px] px-3.5 py-1.5 rounded-xl border text-xs whitespace-nowrap transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C94750] shrink-0 ${
+              activeSection === 'consumptions'
+                ? 'bg-gradient-to-r from-[#2e141d] to-[#200e15] border-[#C94750]/80 text-[#E9E0DB] font-serif font-bold shadow-[0_0_12px_rgba(201,71,80,0.25)]'
+                : 'bg-[#15131a]/60 border-transparent text-[#9a8c90] hover:text-[#E9E0DB] hover:bg-[#1c1922]'
+            }`}
+          >
+            <PapaSymbol size={14} color={activeSection === 'consumptions' ? '#C94750' : '#8a7d81'} />
+            <span>Consumption Types ({settings.consumptionTypes.length})</span>
+          </button>
 
-        <button
-          onClick={() => setActiveSection('rules')}
-          className={`px-3 py-1.5 rounded-xl border font-bold text-xs whitespace-nowrap transition-colors ${
-            activeSection === 'rules'
-              ? 'bg-[#292219] border-[#C6A45C]/65 text-[#F2EBDD] font-serif shadow-sm'
-              : 'bg-[#16141a]/70 border-[#2c2635] text-[#8e8578] hover:text-[#F2EBDD]'
-          }`}
-        >
-          Point Rules
-        </button>
+          {/* Section 3: Point Rules */}
+          <button
+            role="tab"
+            aria-selected={activeSection === 'rules'}
+            onClick={() => handleSelectSection('rules')}
+            className={`min-h-[42px] px-3.5 py-1.5 rounded-xl border text-xs whitespace-nowrap transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A45C] shrink-0 ${
+              activeSection === 'rules'
+                ? 'bg-gradient-to-r from-[#242122] to-[#1a181b] border-[#C6A45C]/60 text-[#F2EBDD] font-serif font-bold shadow-[0_0_10px_rgba(198,164,92,0.18)]'
+                : 'bg-[#15131a]/60 border-transparent text-[#9a9184] hover:text-[#F2EBDD] hover:bg-[#1c1922]'
+            }`}
+          >
+            <Sliders className={`w-3.5 h-3.5 ${activeSection === 'rules' ? 'text-[#C6A45C]' : 'text-[#8a8276]'}`} />
+            <span>Point Rules</span>
+          </button>
 
-        <button
-          onClick={() => setActiveSection('limits')}
-          className={`px-3 py-1.5 rounded-xl border font-bold text-xs whitespace-nowrap transition-colors ${
-            activeSection === 'limits'
-              ? 'bg-[#2b141d] border-[#C94750]/65 text-[#E9E0DB] font-serif shadow-sm'
-              : 'bg-[#16141a]/70 border-[#2c2635] text-[#8e8578] hover:text-[#E9E0DB]'
-          }`}
-        >
-          Personal Limits
-        </button>
+          {/* Section 4: Personal Limits */}
+          <button
+            role="tab"
+            aria-selected={activeSection === 'limits'}
+            onClick={() => handleSelectSection('limits')}
+            className={`min-h-[42px] px-3.5 py-1.5 rounded-xl border text-xs whitespace-nowrap transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9CA3AF] shrink-0 ${
+              activeSection === 'limits'
+                ? 'bg-gradient-to-r from-[#1c1e28] to-[#14151e] border-[#9CA3AF]/60 text-[#F2EBDD] font-serif font-bold shadow-[0_0_10px_rgba(156,163,175,0.18)]'
+                : 'bg-[#15131a]/60 border-transparent text-[#9a9184] hover:text-[#F2EBDD] hover:bg-[#1c1922]'
+            }`}
+          >
+            <Shield className={`w-3.5 h-3.5 ${activeSection === 'limits' ? 'text-[#9CA3AF]' : 'text-[#8a8276]'}`} />
+            <span>Personal Limits</span>
+          </button>
 
-        <button
-          onClick={() => setActiveSection('data')}
-          className={`px-3 py-1.5 rounded-xl border font-bold text-xs whitespace-nowrap transition-colors ${
-            activeSection === 'data'
-              ? 'bg-[#292219] border-[#C6A45C]/65 text-[#F2EBDD] font-serif shadow-sm'
-              : 'bg-[#16141a]/70 border-[#2c2635] text-[#8e8578] hover:text-[#F2EBDD]'
-          }`}
-        >
-          Data &amp; Backup
-        </button>
+          {/* Section 5: Data & Backup */}
+          <button
+            role="tab"
+            aria-selected={activeSection === 'data'}
+            onClick={() => handleSelectSection('data')}
+            className={`min-h-[42px] px-3.5 py-1.5 rounded-xl border text-xs whitespace-nowrap transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C6A45C] shrink-0 ${
+              activeSection === 'data'
+                ? 'bg-gradient-to-r from-[#1b2029] to-[#11161d] border-[#C6A45C]/60 text-[#F2EBDD] font-serif font-bold shadow-[0_0_10px_rgba(198,164,92,0.18)]'
+                : 'bg-[#15131a]/60 border-transparent text-[#9a9184] hover:text-[#F2EBDD] hover:bg-[#1c1922]'
+            }`}
+          >
+            <Database className={`w-3.5 h-3.5 ${activeSection === 'data' ? 'text-[#C6A45C]' : 'text-[#8a8276]'}`} />
+            <span>Data &amp; Backup</span>
+          </button>
+
+          {/* End spacing element so the last tab is never clipped on mobile */}
+          <div className="w-2 shrink-0" aria-hidden="true" />
+        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -635,9 +698,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
                     <button
                       onClick={() => openEditConsumptionModal(cns)}
-                      className="p-2 bg-[#16251e] hover:bg-[#1d3026] border border-[#22362b] rounded-lg text-slate-300 hover:text-white transition"
+                      className="p-2 bg-[#27151e] hover:bg-[#341b28] border border-[#3f1f2e] rounded-lg text-[#E9E0DB] hover:text-white transition"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="w-3.5 h-3.5 text-[#E77A56]" />
                     </button>
 
                     <button
@@ -658,23 +721,28 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* SECTION 3: POINT RULES & BONUSES */}
       {/* ========================================================================= */}
       {activeSection === 'rules' && (
-        <form onSubmit={handleSaveGlobalRules} className="bg-[#111c16] border border-[#1d3025] rounded-3xl p-5 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1c2d23]">
-            <h3 className="text-xs font-semibold text-slate-200">Global Intensity &amp; Milestone Rules</h3>
+        <form onSubmit={handleSaveGlobalRules} className="bg-[#151419]/90 border border-[#30293b] rounded-3xl p-5 space-y-4 shadow-xl backdrop-blur-md">
+          <div className="flex items-center justify-between pb-2 border-b border-[#292233]">
+            <div className="flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-[#C6A45C]" />
+              <h3 className="text-xs font-serif font-bold text-[#F2EBDD] uppercase tracking-wider">
+                Global Intensity &amp; Milestone Rules
+              </h3>
+            </div>
             <button
               type="submit"
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg"
+              className="px-3.5 py-1.5 bg-gradient-to-r from-[#C6A45C] to-[#82683A] text-[#12100d] text-xs font-serif font-bold rounded-xl shadow-md hover:brightness-110 active:scale-95 transition"
             >
               Save Rules
             </button>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-300 block">Intensity Multipliers</label>
+            <label className="text-xs font-serif font-semibold text-[#c4baa9] block">Intensity Multipliers</label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {(['low', 'moderate', 'high', 'vigorous'] as IntensityLevel[]).map((lvl) => (
-                <div key={lvl} className="p-2.5 bg-[#16251e] border border-[#22362b] rounded-xl text-center">
-                  <span className="font-semibold text-slate-300 capitalize text-xs block mb-1">{lvl}</span>
+                <div key={lvl} className="p-2.5 bg-[#1a1820] border border-[#2e2638] rounded-xl text-center">
+                  <span className="font-serif font-semibold text-[#c4baa9] capitalize text-xs block mb-1">{lvl}</span>
                   <input
                     type="number"
                     step="0.05"
@@ -687,36 +755,36 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                         [lvl]: parseFloat(e.target.value) || 1,
                       }))
                     }
-                    className="w-full h-8 bg-[#0c1410] border border-[#233b2e] rounded-lg text-center font-mono text-emerald-300 font-bold focus:outline-none"
+                    className="w-full h-8 bg-[#100f13] border border-[#30283a] rounded-lg text-center font-mono text-[#F2EBDD] font-bold focus:outline-none focus:border-[#C6A45C]"
                   />
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="pt-2 border-t border-[#1c2d23] space-y-2">
-            <label className="text-xs font-semibold text-slate-300 block">Duration Milestone Bonus</label>
+          <div className="pt-2 border-t border-[#292233] space-y-2">
+            <label className="text-xs font-serif font-bold text-[#F2EBDD] uppercase tracking-wider block">Duration Milestone Bonus</label>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <span className="text-[11px] text-slate-400 block mb-1">Duration Threshold (minutes)</span>
+                <span className="text-[11px] text-[#9a9184] block mb-1">Duration Threshold (minutes)</span>
                 <input
                   type="number"
                   min="0"
                   max="300"
                   value={localBonusThreshold}
                   onChange={(e) => setLocalBonusThreshold(parseInt(e.target.value) || 0)}
-                  className="w-full h-9 bg-[#0c1410] border border-[#233b2e] rounded-lg px-3 font-mono text-xs text-slate-200"
+                  className="w-full h-9 bg-[#100f13] border border-[#30283a] rounded-xl px-3 font-mono text-xs text-[#F2EBDD] focus:outline-none focus:border-[#C6A45C]"
                 />
               </div>
               <div>
-                <span className="text-[11px] text-slate-400 block mb-1">Bonus Points Awarded</span>
+                <span className="text-[11px] text-[#9a9184] block mb-1">Bonus Points Awarded</span>
                 <input
                   type="number"
                   min="0"
                   max="500"
                   value={localBonusPoints}
                   onChange={(e) => setLocalBonusPoints(parseInt(e.target.value) || 0)}
-                  className="w-full h-9 bg-[#0c1410] border border-[#233b2e] rounded-lg px-3 font-mono text-xs text-emerald-300"
+                  className="w-full h-9 bg-[#100f13] border border-[#30283a] rounded-xl px-3 font-mono text-xs text-[#C6A45C] font-bold focus:outline-none focus:border-[#C6A45C]"
                 />
               </div>
             </div>
@@ -728,13 +796,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* SECTION 4: PERSONAL LIMITS */}
       {/* ========================================================================= */}
       {activeSection === 'limits' && (
-        <div className="bg-[#111c16] border border-[#1d3025] rounded-3xl p-5 space-y-3">
-          <div className="flex items-center gap-2 pb-2 border-b border-[#1c2d23]">
-            <Target className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-xs font-semibold text-slate-200">Personal Consumption Limits</h3>
+        <div className="bg-[#13141d]/90 border border-[#272b3d] rounded-3xl p-5 space-y-3 shadow-xl backdrop-blur-md">
+          <div className="flex items-center gap-2 pb-2 border-b border-[#232738]">
+            <Shield className="w-4 h-4 text-[#9CA3AF]" />
+            <h3 className="text-xs font-serif font-bold text-[#F2EBDD] uppercase tracking-wider">Personal Consumption Limits</h3>
           </div>
 
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-[#9a9ba8] leading-relaxed">
             Set voluntary daily and weekly limits on any consumption category to monitor balance.
           </p>
 
@@ -742,11 +810,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             {settings.consumptionTypes.map((cns) => (
               <div
                 key={cns.id}
-                className="p-3 bg-[#16251e] border border-[#22362b] rounded-2xl flex items-center justify-between"
+                className="p-3 bg-[#191b26] border border-[#272b3d] rounded-2xl flex items-center justify-between"
               >
                 <div>
-                  <span className="text-xs font-semibold text-slate-200">{cns.name}</span>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
+                  <span className="text-xs font-serif font-semibold text-[#F2EBDD]">{cns.name}</span>
+                  <div className="text-[11px] text-[#9a9ba8] mt-0.5 font-mono">
                     {cns.dailyLimit ? `Daily: ${cns.dailyLimit} ${cns.unitName}s` : 'No daily limit'} ·{' '}
                     {cns.weeklyLimit ? `Weekly: ${cns.weeklyLimit} ${cns.unitName}s` : 'No weekly limit'}
                   </div>
@@ -754,7 +822,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
                 <button
                   onClick={() => openEditConsumptionModal(cns)}
-                  className="px-2.5 py-1 text-xs text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 rounded-lg hover:bg-cyan-950 transition"
+                  className="px-3 py-1.5 text-xs text-[#F2EBDD] bg-[#222536] hover:bg-[#2b2f45] border border-[#393f5a] rounded-xl font-serif font-medium transition"
                 >
                   Adjust Limit
                 </button>
@@ -769,14 +837,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* ========================================================================= */}
       {activeSection === 'data' && (
         <div className="space-y-4">
-          {/* Backup Box */}
-          <div className="bg-[#111c16] border border-[#1d3025] rounded-3xl p-5 space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-[#1c2d23]">
-              <Database className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-xs font-semibold text-slate-200">JSON Backup &amp; Recovery</h3>
+          {/* Backup Box with Technology-Inspired Styling */}
+          <div className="bg-[#0e1118]/90 border border-[#202738] rounded-3xl p-5 space-y-4 shadow-xl backdrop-blur-md relative overflow-hidden">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#1c2333]">
+              <Database className="w-4 h-4 text-[#C6A45C]" />
+              <h3 className="text-xs font-serif font-bold text-[#F2EBDD] uppercase tracking-wider">JSON Backup &amp; Recovery</h3>
             </div>
 
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#8e95a5]">
               Export a full JSON backup including your custom activities, consumption types, point rules, and ledger transactions.
             </p>
 
@@ -788,38 +856,38 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
                   a.href = url;
-                  a.download = `nasha-ledger-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                  a.download = `sankalpa-backup-${new Date().toISOString().slice(0, 10)}.json`;
                   a.click();
                   URL.revokeObjectURL(url);
                   showToast('Exported complete backup JSON');
                 }}
-                className="min-h-[44px] p-2.5 bg-[#16251e] hover:bg-[#1c3026] border border-[#22362b] rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-emerald-300 transition"
+                className="min-h-[44px] p-2.5 bg-[#151a24] hover:bg-[#1c2330] border border-[#273248] rounded-xl flex items-center justify-center gap-2 text-xs font-serif font-semibold text-[#F2EBDD] transition shadow-sm"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 text-[#C6A45C]" />
                 <span>Export JSON</span>
               </button>
 
               <button
                 onClick={() => setIsImportModalOpen(true)}
-                className="min-h-[44px] p-2.5 bg-[#16251e] hover:bg-[#1c3026] border border-[#22362b] rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-slate-200 transition"
+                className="min-h-[44px] p-2.5 bg-[#151a24] hover:bg-[#1c2330] border border-[#273248] rounded-xl flex items-center justify-center gap-2 text-xs font-serif font-semibold text-[#F2EBDD] transition shadow-sm"
               >
-                <Upload className="w-4 h-4 text-slate-400" />
+                <Upload className="w-4 h-4 text-[#C6A45C]" />
                 <span>Import JSON</span>
               </button>
             </div>
 
-            <div className="pt-2 border-t border-[#1c2d23] flex items-center justify-between">
+            <div className="pt-2 border-t border-[#1c2333] flex items-center justify-between">
               <button
                 onClick={loadSampleDataset}
-                className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1.5"
+                className="text-xs text-[#8e95a5] hover:text-[#F2EBDD] flex items-center gap-1.5 transition"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className="w-3.5 h-3.5 text-[#C6A45C]" />
                 <span>Reload Sample Data</span>
               </button>
 
               <button
                 onClick={() => setIsClearConfirmOpen(true)}
-                className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1.5"
+                className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1.5 transition"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Clear All Data</span>
@@ -828,28 +896,28 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
 
           {/* Automated Tests Runner */}
-          <div className="bg-[#111c16] border border-[#1d3025] rounded-3xl p-5 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#1c2d23]">
+          <div className="bg-[#0e1118]/90 border border-[#202738] rounded-3xl p-5 space-y-3 shadow-xl backdrop-blur-md">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1c2333]">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-xs font-semibold text-slate-200">System Integrity &amp; Tests</h3>
+                <CheckCircle className="w-4 h-4 text-[#C6A45C]" />
+                <h3 className="text-xs font-serif font-bold text-[#F2EBDD] uppercase tracking-wider">System Integrity &amp; Tests</h3>
               </div>
               <button
                 onClick={handleRunInAppTests}
-                className="px-2.5 py-1 bg-[#17251f] hover:bg-[#1d3027] border border-[#22372b] rounded-lg text-xs font-medium text-emerald-300 flex items-center gap-1"
+                className="px-2.5 py-1 bg-[#151a24] hover:bg-[#1c2330] border border-[#273248] rounded-lg text-xs font-serif font-medium text-[#C6A45C] flex items-center gap-1 transition"
               >
                 <Play className="w-3 h-3" />
                 <span>Run In-App Tests</span>
               </button>
             </div>
 
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#8e95a5]">
               Verifies duration/repetition/fixed calculations, consumption charging, and signed balance integrity.
             </p>
 
             {testResults && (
-              <div className="bg-[#0b120e] p-3 rounded-xl border border-[#1d2d23] text-xs font-mono space-y-1">
-                <div className="flex items-center justify-between text-emerald-400 font-bold mb-1">
+              <div className="bg-[#090b10] p-3 rounded-xl border border-[#1c2333] text-xs font-mono space-y-1">
+                <div className="flex items-center justify-between text-[#C6A45C] font-bold mb-1">
                   <span>Automated Verification</span>
                   <span>
                     {testResults.passed}/{testResults.total} Passed
@@ -858,7 +926,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 {testResults.logs.map((log, idx) => (
                   <div
                     key={idx}
-                    className={log.startsWith('✓') ? 'text-emerald-300/90' : 'text-rose-400'}
+                    className={log.startsWith('✓') ? 'text-emerald-400/90' : 'text-rose-400'}
                   >
                     {log}
                   </div>

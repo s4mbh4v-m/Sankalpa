@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import { LayoutDashboard, PlusCircle, Scale, BarChart3, Settings } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Scale, BarChart3 } from 'lucide-react';
+import { AltarShrineIcon } from './SacredSymbols';
 
 export type NavTab = 'dashboard' | 'log' | 'ledger' | 'analytics' | 'settings';
 
@@ -19,7 +20,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
     { id: 'log' as NavTab, label: 'Record', icon: PlusCircle },
     { id: 'ledger' as NavTab, label: 'Ledger', icon: Scale },
     { id: 'analytics' as NavTab, label: 'Insights', icon: BarChart3 },
-    { id: 'settings' as NavTab, label: 'Altar', icon: Settings },
+    { id: 'settings' as NavTab, label: 'Altar', icon: AltarShrineIcon },
   ];
 
   return (
